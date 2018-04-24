@@ -7,9 +7,8 @@ class Bird{
         this.y=height/2;
         BIRD_X_POS=width/10;
         this.score=0;
-        this.fitness=0;
 
-        this.brain= neataptic.architect.Perceptron(3, 4, 2);
+        this.brain = neataptic.architect.Perceptron(5, 4, 1);
         //this.brain=generateTrainedBrain();
         this.brain.mutate(neataptic.methods.mutation.MOD_BIAS);
         this.brain.mutate(neataptic.methods.mutation.MOD_WEIGHT);
@@ -33,7 +32,6 @@ class Bird{
             this.y-=this.yVel;
 
 
-        this.score++;
 
 
 
@@ -66,10 +64,12 @@ class Bird{
         closestPipe.highlight=true;
         let inputs=[];
         inputs[0]=this.y/height;
-        inputs[1]=closestPipe.top/height;
+        inputs[1] = map(closestPipe.top, 50, height - closestPipe.pipeSize - 50, 0, 1);
         inputs[2]=closestPipe.x/width;
+        inputs[3] = map(this.yVel, -10, 4, 0, 1);
+        inputs[4] = map(closestPipe.pipeSize, 70, 100, 0, 1);
         let activated=this.brain.activate(inputs);
-        if(activated[0]>activated[1])
+        if (activated[0] > 0.5)
             this.jump();
 
 

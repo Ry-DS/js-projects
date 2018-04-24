@@ -5,14 +5,34 @@ const BIRD_COUNT=400;
 let slider;
 let speed=1;
 let count=0;
+let highestScore = 0;
 
+let highestScoreText;
+let scoreText;
+let loadBestButton;
 
 function setup() {
   // put setup code here
     createCanvas(480, 300);
     console.log(height);
     newGeneration();
-    slider=createSlider(1,100,1);
+    //ui stuff
+    slider = createSlider(1, 2000, 1);
+
+    highestScoreText = createElement("p", "");
+    highestScoreText.position(0, height + 10);
+    scoreText = createElement("p", "");
+    scoreText.position(0, height + 30);
+    loadBestButton = createButton("Load pre-trained bird");
+    loadBestButton.position(0, height + 65);
+    loadBestButton.mousePressed(() => {
+        birds = [];
+        birds.push(new Bird());
+
+        birds[0].brain = generateTrainedBrain();
+        pipes = [];
+    })
+
 
 
 }
@@ -54,12 +74,18 @@ function newGeneration(){
 
 }
 function update(){
+    if (frameCount % 10 === 0)
+        highestScoreText.html("Highest Score: " + highestScore);
+
 
     if(birds.length===0){
         newGeneration();
         return;
     }
-    speed=slider.value();
+    if (frameCount % 10 === 0)
+        scoreText.html("Current Score: " + birds[0].score);
+    if (speed <= 2000)
+        speed=slider.value();
 
 
 
@@ -73,6 +99,10 @@ function update(){
                 deadBirds.push(birds.splice(j,1)[0])
             }
         }
+        if (pipe.x < BIRD_X_POS && !pipe.passedBird) {
+            birds.forEach(bird => bird.score++);
+            pipe.passedBird = true;
+        }
 
 
         if(pipe.x<0-PIPE_WIDTH)
@@ -85,6 +115,8 @@ function update(){
     for(let bird of birds){
         bird.think(pipes);
         bird.update();
+        if (bird.score > highestScore)
+            highestScore = bird.score;
     }
     count++;
 

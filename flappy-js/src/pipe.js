@@ -1,14 +1,15 @@
-let PIPE_SIZE=100;
 const PIPE_WIDTH=40;
 let pipeSpeed = 3;
 
 class Pipe{
 
     constructor() {
+        this.pipeSize = random(70, 100);
         this.x=width;
-        this.top=random(50,height-100);
-        this.bottom=height-this.top-PIPE_SIZE;
+        this.top = random(50, height - this.pipeSize - 50);
+        this.bottom = height - this.top - this.pipeSize;
         this.highlight=false;
+        this.passedBird = false;
 
 
     }
