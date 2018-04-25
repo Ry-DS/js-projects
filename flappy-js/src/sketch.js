@@ -1,3 +1,4 @@
+
 let birds=[];
 let pipes=[];
 let deadBirds=[];
@@ -6,6 +7,7 @@ let slider;
 let speed=1;
 let count=0;
 let highestScore = 0;
+let generation = 0;
 
 let highestScoreText;
 let scoreText;
@@ -13,8 +15,9 @@ let loadBestButton;
 
 function setup() {
   // put setup code here
-    createCanvas(480, 300);
-    console.log(height);
+    let canvas = createCanvas(480, 300);
+    canvas.style('display', 'block');
+    canvas.parent('sketch-holder');
     newGeneration();
     //ui stuff
     slider = createSlider(1, 2000, 1);
@@ -34,6 +37,13 @@ function setup() {
     })
 
 
+
+}
+
+function updateChart(score) {
+    fitnessChart.data.datasets[0].data[generation - 1] = score;
+    fitnessChart.data.labels[generation - 1] = "Gen " + generation;
+    fitnessChart.update();
 
 }
 
@@ -67,10 +77,13 @@ function newGeneration(){
         if(i<BIRD_COUNT-50)//we want some birds to be completely random so the network can break out of stand stills where no one progresses
         birds[i].setBrain(bestBird.brain);//sets brain with mutations
     }
+    generation++;
+    updateChart(bestBird.score);
     pipes=[];
     deadBirds=[];
     count=0;
     console.log('new generation');
+
 
 }
 function update(){
@@ -82,8 +95,10 @@ function update(){
         newGeneration();
         return;
     }
-    if (frameCount % 10 === 0)
+    if (frameCount % 10 === 0) {
         scoreText.html("Current Score: " + birds[0].score);
+        updateChart(birds[0].score);
+    }
     if (speed <= 2000)
         speed=slider.value();
 
