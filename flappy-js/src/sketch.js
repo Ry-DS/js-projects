@@ -7,11 +7,15 @@ let slider;
 let speed=1;
 let count=0;
 let highestScore = 0;
-let generation = 0;
+let generation = 1;
 
 let highestScoreText;
 let scoreText;
 let loadBestButton;
+
+let chartFitnesses = [];
+let chartLabels = [];
+
 
 function setup() {
   // put setup code here
@@ -41,8 +45,15 @@ function setup() {
 }
 
 function updateChart(score) {
-    fitnessChart.data.datasets[0].data[generation - 1] = score;
-    fitnessChart.data.labels[generation - 1] = "Gen " + generation;
+    chartFitnesses[generation - 1] = score;
+    chartLabels[generation - 1] = "Gen " + generation;
+    if (chartFitnesses.length <= 15) {
+        fitnessChart.data.datasets[0].data = chartFitnesses;
+        fitnessChart.data.labels = chartLabels;
+    } else {
+        fitnessChart.data.datasets[0].data = chartFitnesses.subarray(chartFitnesses.length - 15, chartFitnesses.length);
+        fitnessChart.data.labels = chartLabels.subarray(chartLabels.length - 15, chartLabels.length);
+    }
     fitnessChart.update();
 
 }
@@ -97,8 +108,9 @@ function update(){
     }
     if (frameCount % 10 === 0) {
         scoreText.html("Current Score: " + birds[0].score);
-        updateChart(birds[0].score);
     }
+    if (frameCount % 60 === 0)
+        updateChart(birds[0].score);
     if (speed <= 2000)
         speed=slider.value();
 

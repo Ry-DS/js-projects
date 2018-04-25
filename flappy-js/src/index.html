@@ -59,6 +59,21 @@
               }
           }
       });
+      Array.prototype.subarray = function (start, end) {
+          if (!end) {
+              end = this.length;
+          }
+          let clone = (obj) => {
+              if (null == obj || "object" != typeof obj) return obj;
+              var copy = obj.constructor();
+              for (var attr in obj) {
+                  if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+              }
+              return copy;
+          };
+          var newArray = clone(this);
+          return newArray.slice(start, end);
+      };
       /* ctx.style.width='200px';
        ctx.style.height='200px';*/
 
