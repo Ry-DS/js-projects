@@ -1,41 +1,45 @@
-let SPEED=1.5;
+let DIFF=10;//how the screen is divided into squares
+
 class Snake{
 
 
     constructor() {
-        this.tail=[];
-        this.tail.push(new Tail(width/2,height/2));
-        this.tail.push(new Tail(width/2+20,height/2));
-        this.tail.push(new Tail(width/2+40,height/2));
+        this.x=[];
+        this.y=[];
+        this.numSegments=4;//start off with 4 length
         this.score=0;
-        this.xVel=0;
-        this.yVel=0;
+        frameRate(15);
+        this.direction=RIGHT_ARROW;
+        for (let i = 0; i < this.numSegments; i++) {
+            this.x.push(30 + (i * DIFF));//0 is where snake starts on x
+            this.y.push(250);//250 is where snake starts on y
+        }
 
     }
     update() {
 
-        if (dist(this.x, this.y, food.x, food.y) < 2) {
-            this.score++;
-            newFood();
-            this.tail.push(new Tail(this.tail[0].x, this.tail[0].y));
+        for (let i = 0; i < this.numSegments - 1; i++) {
+            this.x[i] = this.x[i + 1];
+            this.y[i] = this.y[i + 1];
         }
-        if(this.tail.length===0)
-            return;
-        let lastpart=this.tail.pop();
-        let firstpart=this.tail.shift();
-        let saveX=lastpart.x;
-        let saveY=lastpart.y;
-        lastpart.x=firstpart.x;
-        lastpart.y=firstpart.y;
-        lastpart.x+=this.xVel;
-        lastpart.y+=this.yVel;
-
-        firstpart.x=saveX;
-        firstpart.y=saveY;
-        firstpart.x+=this.xVel;
-        firstpart.y+=this.yVel;
-        this.tail.splice(this.tail.length-2,0,firstpart);
-        this.tail.unshift(lastpart);
+        switch (this.direction) {
+            case RIGHT_ARROW:
+                this.x[this.numSegments - 1] = this.x[this.numSegments - 2] + DIFF;
+                this.y[this.numSegments - 1] = this.y[this.numSegments - 2];
+                break;
+            case UP_ARROW:
+                this.x[this.numSegments - 1] = this.x[this.numSegments - 2];
+                this.y[this.numSegments - 1] = this.y[this.numSegments - 2] - DIFF;
+                break;
+            case LEFT_ARROW:
+                this.x[this.numSegments - 1] = this.x[this.numSegments - 2] - DIFF;
+                this.y[this.numSegments - 1] = this.y[this.numSegments - 2];
+                break;
+            case DOWN_ARROW:
+                this.x[this.numSegments - 1] = this.x[this.numSegments - 2];
+                this.y[this.numSegments - 1] = this.y[this.numSegments - 2] + DIFF;
+                break;
+        }
 
 
     }
@@ -44,38 +48,68 @@ class Snake{
 
 
     render(){
+        push();
         fill(255);
-        for(let t of this.tail){
-            rect(t.x,t.y,10,10);
+        stroke(255);
+        strokeWeight(10);
+        for (let i = 0; i < this.numSegments - 1; i++) {
+            line(this.x[i], this.y[i], this.x[i + 1], this.y[i + 1]);
         }
+        pop();
 
+    }
+    hitItself(){
+        let head=this.getHead();
+        for (let i = 0; i < this.x.length-1; i++) {//ignore last part as thats head.
+            if(this.x[i]===head.x&&this.y[i]===head.y)
+                return true;
+
+        }
+        return false;
+
+    }
+    getHead(){
+        return {x: this.x[this.x.length-1], y: this.y[this.y.length-1]};
+    }
+    addLength(){
+        this.x.unshift(this.x[0]);//adds an element to the start of an array
+        this.y.unshift(this.y[0]);
+        this.numSegments++;
     }
 
 
 }
 function keyPressed(){
-if (keyCode === LEFT_ARROW) {
-    snake.xVel=-SPEED;
-    snake.yVel=0;
+if (keyCode === LEFT_ARROW&&snake.direction!==RIGHT_ARROW) {
+    snake.direction=LEFT_ARROW;
 
-} else if (keyCode === RIGHT_ARROW) {
-    snake.xVel=SPEED;
-    snake.yVel=0;
+} else if (keyCode === RIGHT_ARROW&&snake.direction!==LEFT_ARROW) {
+    snake.direction=RIGHT_ARROW;
 }
-else if (keyCode === UP_ARROW) {
-    snake.yVel=-SPEED;
-    snake.xVel=0;
+else if (keyCode === UP_ARROW&&snake.direction!==DOWN_ARROW) {
+    snake.direction=UP_ARROW;
 }
-else if (keyCode === DOWN_ARROW) {
-    snake.yVel=SPEED;
-    snake.xVel=0;
+else if (keyCode === DOWN_ARROW&&snake.direction!==UP_ARROW) {
+    snake.direction=DOWN_ARROW;
 }
 
 
 
 }
-function Tail(x,y){
-    this.x=x;
-    this.y=y;
+function touchMoved(){
+    if(mouseX>width/2){
+        if(mouseY<height/2&&snake.direction!==DOWN_ARROW)
+            snake.direction=UP_ARROW;
+        else if(snake.direction!==LEFT_ARROW) snake.direction=RIGHT_ARROW;
+    }
+    else{
+        if(mouseY<height/2&&snake.direction!==RIGHT_ARROW)
+            snake.direction=LEFT_ARROW;
+        else if(snake.direction!==UP_ARROW) snake.direction=DOWN_ARROW;
+    }
 
 }
+function touchStarted(){
+    touchMoved();
+}
+
