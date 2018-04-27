@@ -3,7 +3,7 @@ let DIFF=10;//how the screen is divided into squares
 class Snake{
 
 
-    constructor() {
+    constructor(brain) {
         this.x=[];
         this.y=[];
         this.numSegments=4;//start off with 4 length
@@ -19,15 +19,12 @@ class Snake{
             this.y.push(250);//250 is where snake starts on y
         }
 
-        //neural network
-        this.brain = neataptic.architect.Perceptron(12, 6, 4);
+        this.brain = brain;
 
     }
     setBrain(brain){
 
-        this.brain=neataptic.Network.fromJSON(brain.toJSON());
-        this.brain.mutate(neataptic.methods.mutation.MOD_BIAS);
-        this.brain.mutate(neataptic.methods.mutation.MOD_WEIGHT);
+        this.brain = brain;
     }
 
     update() {
@@ -56,11 +53,13 @@ class Snake{
         }
         this.food.update();
         if(this.food.hasBeenEaten(this)){
-            this.score++;
             this.addLength();
+            this.score++;
             this.food=newFood();
-            this.moves=500;
+            this.moves = 200;
         }
+        this.fitness += this.numSegments;
+        this.brain.score = this.fitness;
 
 
     }
@@ -84,34 +83,37 @@ class Snake{
     }
     think(){
         let inputs=[];
-        //right 0,1,2 are food, wall, itself
-        //left 3,4,5 are food, wall, itself
-        //up 6,7,8 are food, wall, itself
-        //down 9,10,11 are food, wall, itself
-        for (let i = 0; i < 12; i++) {
-            inputs[i]=1;
+        // food 0,1,2,3,4,5,6,7 right, left up down
+        // wall 8,9,10,11,12,13,14,15 right, left up down
+        // itself 16,17,18,19,20,21,22,23 right, left up down
+        for (let i = 0; i < 24; i++) {
+            inputs[i] = 0;
 
         }
-        let results=[rayCast(this.getHead().x,this.getHead().y,RIGHT_ARROW,this),
-        rayCast(this.getHead().x,this.getHead().y,LEFT_ARROW,this),
-        rayCast(this.getHead().x,this.getHead().y,UP_ARROW,this),
-        rayCast(this.getHead().x,this.getHead().y,DOWN_ARROW,this)];
-        for (let i = 0; i <=9; i+=3) {
-            if(results[i/3].result==='food')
-                inputs[i]=map(results[i/3].distance,20,Math.max(width,height),0,1);
+        let results = [rayCast(this.getHead(), createVector(0, DIFF), this),//right
+            rayCast(this.getHead(), createVector(0, -DIFF), this),//left
+            rayCast(this.getHead(), createVector(-DIFF, 0), this),//up
+            rayCast(this.getHead(), createVector(DIFF, 0), this),//down
+            rayCast(this.getHead(), createVector(-DIFF, DIFF), this),//up right
+            rayCast(this.getHead(), createVector(-DIFF, -DIFF), this),// up left
+            rayCast(this.getHead(), createVector(DIFF, DIFF), this),// down right
+            rayCast(this.getHead(), createVector(DIFF, -DIFF), this)// down left
+        ];
+
+        for (let i = 0; i <= 7; i++) {
+            if (results[i].distFood !== -1)
+                inputs[i] = map(results[i].distFood, 10, Math.max(width, height), 0, 1);
+        }
+        for (let i = 8; i <= 15; i++) {
+            inputs[i] = map(results[i - 8].distWall, 10, Math.max(width, height), 0, 1);
 
         }
-        for (let i = 1; i <=10 ; i+=3) {
-            if(results[(i-1)/3].result==='wall')
-                inputs[i]=map(results[(i-1)/3].distance,10,Math.max(width,height),0,1)
+        for (let i = 16; i <= 23; i++) {
+            if (results[i - 16].distItself !== -1)
+                inputs[i] = map(results[i - 16].distItself, 10, Math.max(width, height), 0, 1);
 
         }
-        for (let i = 2; i <=11 ; i+=3) {
-            if(results[(i-2)/3].result==='itself')
-                inputs[i]=map(results[(i-2)/3].distance,10,Math.max(width,height),0,1)
 
-        }
-       // console.log(inputs);
 
         let activated=this.brain.activate(inputs);
 
@@ -123,6 +125,7 @@ class Snake{
             this.direction=LEFT_ARROW;
         if (activated[3] > 0.5)
             this.direction=RIGHT_ARROW;
+        return inputs;
     }
 
     hitItself(){
@@ -136,7 +139,8 @@ class Snake{
 
     }
     getHead(){
-        return {x: this.x[this.x.length-1], y: this.y[this.y.length-1]};
+
+        return createVector(this.x[this.x.length - 1], this.y[this.y.length - 1]);
     }
     addLength(){
         this.x.unshift(this.x[0]);//adds an element to the start of an array
@@ -146,52 +150,21 @@ class Snake{
 
 
 }
-/*function keyPressed(){
-if (keyCode === LEFT_ARROW&&snakes[0].direction!==RIGHT_ARROW) {
-    snakes[0].direction=LEFT_ARROW;
-
-} else if (keyCode === RIGHT_ARROW&&snakes[0].direction!==LEFT_ARROW) {
-    snakes[0].direction=RIGHT_ARROW;
-}
-else if (keyCode === UP_ARROW&&snakes[0].direction!==DOWN_ARROW) {
-    snakes[0].direction=UP_ARROW;
-}
-else if (keyCode === DOWN_ARROW&&snakes[0].direction!==UP_ARROW) {
-    snakes[0].direction=DOWN_ARROW;
-}
 
 
-
-}
-function touchMoved(){
-    if(mouseX>width/2){
-        if(mouseY<height/2&&snakes[0].direction!==DOWN_ARROW)
-            snakes[0].direction=UP_ARROW;
-        else if(snakes[0].direction!==LEFT_ARROW) snakes[0].direction=RIGHT_ARROW;
-    }
-    else{
-        if(mouseY<height/2&&snakes[0].direction!==RIGHT_ARROW)
-            snakes[0].direction=LEFT_ARROW;
-        else if(snakes[0].direction!==UP_ARROW) snakes[0].direction=DOWN_ARROW;
-    }
-
-}
-function touchStarted(){
-    touchMoved();
-}*/
-function rayCast(x,y,direction,snake){
-    let currentPos=createVector(x,y);
-    let tries=0;
-    let findItem=(snake)=>{
-        if(currentPos.x>=width-10||currentPos.y>=height-10||currentPos.x<=-10||currentPos.y<=-10)
+function rayCast(pos, direction, snake) {
+    let currentPos = pos.copy();
+    let findItem = (snake) => {
+        if (currentPos.x >= width - 10 || currentPos.y >= height - 10 || currentPos.x <= -10 || currentPos.y <= -10)
             return 'wall';
-        if(currentPos.x===snake.food.x&&currentPos.y===snake.food.y)
+        if (currentPos.x === snake.food.x && currentPos.y === snake.food.y) {
             return 'food';
+        }
 
-        for (let i = 0; i < snake.numSegments-1; i++) {
+        for (let i = 0; i < snake.numSegments - 1; i++) {
 
                 let segPos=createVector(snake.x[i],snake.y[i]);
-                if(segPos.equals(currentPos)&&tries!==0){
+            if (segPos.equals(currentPos)) {
                     return 'itself';
 
 
@@ -199,42 +172,26 @@ function rayCast(x,y,direction,snake){
         }
         return -1;
     };
-    let result=-1;
-    switch(direction){
-        case UP_ARROW:
 
-            while(result===-1&&tries<5000){
-                result = findItem(snake);
-                currentPos.add(0,-DIFF);
-                tries++;
-            }
-            return {result: result, distance: y-currentPos.y};
-        case DOWN_ARROW:
-            while(result===-1&&tries<5000){
-                result = findItem(snake);
-                currentPos.add(0,DIFF);
-                tries++;
-            }
-            return {result: result, distance: currentPos.y-y};
-        case LEFT_ARROW:
-            while(result===-1&&tries<5000){
-                result = findItem(snake);
-                currentPos.add(-DIFF,0);
-                tries++;
-            }
-            return {result: result, distance: x-currentPos.x};
-        case RIGHT_ARROW:
-            while(result===-1&&tries<5000){
-                result = findItem(snake);
-                currentPos.add(DIFF,0);
-                tries++;
-            }
-
-            return {result: result, distance: currentPos.x-x};
-
+    let foundThings = new Map();
+    while (!foundThings.has('wall')) {
+        let result = findItem(snake);
+        if (result !== -1)
+            foundThings.set(result, currentPos.dist(pos));
+        currentPos.add(direction);
 
 
     }
+    let finalResult = {distFood: -1, distItself: -1, distWall: foundThings.get('wall')};
+    if (foundThings.has('food'))
+        finalResult.distFood = foundThings.get('food');
+    if (foundThings.has('itself'))
+        finalResult.distItself = foundThings.get('itself');
+    return finalResult;
+
+
+
+
 
 }
 

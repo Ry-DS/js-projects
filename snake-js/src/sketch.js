@@ -1,6 +1,5 @@
 let snakes=[];
-let deadSnakes=[];
-const SNAKE_COUNT=100;
+const SNAKE_COUNT = 150;
 let neat;
 let slider;
 let speed=1;
@@ -17,19 +16,21 @@ let chartLabels=[];
 
 
 function setup() {
-    let canvas=createCanvas(500, 500);
+    let canvas = createCanvas(300, 300);
     canvas.style('display', 'block');
     canvas.parent('sketch-holder');
 
-    neat=new neataptic.Neat(12,4,null,
+    neat = new neataptic.Neat(24, 4, (g) => {
+            return 1;
+        },
         {
             mutation: neataptic.methods.mutation.ALL,
             popsize: SNAKE_COUNT,
             mutationRate: 0.3,
             elitism: Math.round(0.1* SNAKE_COUNT),
-            network: new neataptic.architect.Random(
-                12,
-                6,
+            network: new neataptic.architect.Perceptron(
+                24,
+                16,
                 4
             )
         });
@@ -43,14 +44,14 @@ function setup() {
     highScoreText.position(0, height + 10);
     scoreText = createElement("p", "");
     scoreText.position(0, height + 30);
-    loadBestButton = createButton("Load pre-trained bird");
-    loadBestButton.position(0, height + 65);
-    loadBestButton.mousePressed(() => {
-        this.snake = [];
-        this.snake.push(new Snake());
+    /* loadBestButton = createButton("Load pre-trained bird");
+     loadBestButton.position(0, height + 65);
+     loadBestButton.mousePressed(() => {
+         this.snake = [];
+         this.snake.push(new Snake());
 
-        //snakes[0].brain = generateTrainedBrain();
-    })
+         //snakes[0].brain = generateTrainedBrain();
+     })*/
 }
 
 function updateChart(score) {
@@ -58,41 +59,34 @@ function updateChart(score) {
 }
 
 function newGeneration(){
-    if(deadSnakes.length===0){
-        for (let i = 0; i < SNAKE_COUNT; i++) {
-            snakes[i]=new Snake();
-        }
-        return;
-    }
-    //calculate fitness
-    let sum=0;
-    for(let snake of deadSnakes){
-        sum+=snake.score;
-    }
-    for(let snake of deadSnakes){
-        snake.fitness=snake.score/sum;
-    }
-
-    let bestSnake;
-    let index=0;
-    let r=random(1);
-    while(r>0){
-        r=r-deadSnakes[index].fitness;
-        index++;
-    }
-
-    bestSnake=deadSnakes[index-1];
-    for (let i = 0; i < SNAKE_COUNT; i++) {
-        snakes[i]=new Snake();
-        /*if(i<SNAKE_COUNT-50)//we want some birds to be completely random so the network can break out of stand stills where no one progresses
-            snakes[i].setBrain(bestSnake.brain);//sets brain with mutations*/
-    }
+    console.log('Generation:', neat.generation, '- average score:', neat.getAverage());
     generation++;
+    neat.sort();
+    var newPopulation = [];
 
-    updateChart(bestSnake.score);
-    deadSnakes=[];
+    // Elitism
+    for (var i = 0; i < neat.elitism; i++) {
+        newPopulation.push(neat.population[i]);
+    }
+
+    // Breed the next individuals
+    for (var i = 0; i < neat.popsize - neat.elitism; i++) {
+        newPopulation.push(neat.getOffspring());
+    }
+
+    // Replace the old population with the new population
+    neat.population = newPopulation;
+    neat.mutate();
+
+    neat.generation++;
+
+    snakes = [];
+    for (let genome in neat.population) {
+        genome = neat.population[genome];
+        snakes.push(new Snake(genome));
+    }
+
     count=0;
-    console.log('new generation');
 
 
 }
@@ -115,10 +109,13 @@ function update(){
         let snake=snakes[i];
         let head=snake.getHead();
         if(snake.hitItself()||head.x>width-20||head.y>height-20||head.x<20||head.y<20||snake.moves<0){//if snake died
-            deadSnakes.push(snakes.splice(i,1)[0]);
+            snakes.splice(i, 1);
             continue;
         }
-        snake.think();
+
+        let inputs = snake.think();
+        /* if(i===0)
+             console.log(inputs);*/
         snake.update();
         if (snake.score > highestScore)
             highestScore = snake.score;
@@ -141,7 +138,7 @@ function draw() {
     }
     snakes.forEach((snake)=>{
         snake.render();
-    })
+    });
 
     drawBox();
 
@@ -156,8 +153,8 @@ function drawBox() {
     pop();
 }
 function newFood(){
-    let xFruit = floor(random(10, (width - 100) / 10)) * 10;
-    let yFruit = floor(random(10, (height - 100) / 10)) * 10;
+    let xFruit = floor(random(50, (width - 50)));
+    let yFruit = floor(random(50, (height - 50)));
     return new Food(xFruit,yFruit);
 }
 function Food(x,y){
