@@ -1,5 +1,5 @@
 let snakes=[];
-const SNAKE_COUNT = 150;
+const SNAKE_COUNT = 50;
 let neat;
 let slider;
 let speed=1;
@@ -28,7 +28,7 @@ function setup() {
             popsize: SNAKE_COUNT,
             mutationRate: 0.3,
             elitism: Math.round(0.1* SNAKE_COUNT),
-            network: new neataptic.architect.Perceptron(
+            network: new neataptic.architect.Random(
                 24,
                 16,
                 4
@@ -153,8 +153,8 @@ function drawBox() {
     pop();
 }
 function newFood(){
-    let xFruit = floor(random(50, (width - 50)));
-    let yFruit = floor(random(50, (height - 50)));
+    let xFruit = floor(random(5, (width - 50) / 10)) * 10;
+    let yFruit = floor(random(5, (height - 50) / 10)) * 10;
     return new Food(xFruit,yFruit);
 }
 function Food(x,y){
