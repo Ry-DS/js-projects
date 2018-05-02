@@ -1,5 +1,5 @@
 let snakes=[];
-const SNAKE_COUNT = 50;
+const SNAKE_COUNT = 1;
 let neat;
 let slider;
 let speed=1;
@@ -19,8 +19,9 @@ function setup() {
     let canvas = createCanvas(300, 300);
     canvas.style('display', 'block');
     canvas.parent('sketch-holder');
+    frameRate(15);
 
-    neat = new neataptic.Neat(24, 4, (g) => {
+    /*neat = new neataptic.Neat(24, 4, (g) => {
             return 1;
         },
         {
@@ -33,7 +34,7 @@ function setup() {
                 16,
                 4
             )
-        });
+        });*/
 
 
     newGeneration();
@@ -59,8 +60,12 @@ function updateChart(score) {
 }
 
 function newGeneration(){
+    snakes=[];
+    snakes.push(new Snake());
+    return;
     console.log('Generation:', neat.generation, '- average score:', neat.getAverage());
     generation++;
+
     neat.sort();
     var newPopulation = [];
 
@@ -113,9 +118,8 @@ function update(){
             continue;
         }
 
-        let inputs = snake.think();
-        /* if(i===0)
-             console.log(inputs);*/
+        //let inputs = snake.think();
+
         snake.update();
         if (snake.score > highestScore)
             highestScore = snake.score;
@@ -137,6 +141,16 @@ function draw() {
         update();
     }
     snakes.forEach((snake)=>{
+        strokeWeight(1);
+        let inputs = snake.think();
+        inputs.forEach(input=>{
+            if(input.distFood!==-1)
+                stroke(255,0,0);
+            else if(input.distItself!==-1)
+                stroke(0,0,255);
+            else stroke(0,255,0);
+           line(snake.getHead().x,snake.getHead().y,input.finalPos.x-10,input.finalPos.y-10);
+        });
         snake.render();
     });
 

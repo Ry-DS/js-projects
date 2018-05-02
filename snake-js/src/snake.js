@@ -12,7 +12,6 @@ class Snake{
         this.moves=500;
         this.food=newFood();
         this.color=[random(255),random(255),random(255)];
-        frameRate(15);
         this.direction=RIGHT_ARROW;
         for (let i = 0; i < this.numSegments; i++) {
             this.x.push(30 + (i * DIFF));//0 is where snake starts on x
@@ -59,7 +58,7 @@ class Snake{
             this.moves = 200;
         }
         this.fitness += this.numSegments;
-        this.brain.score = this.fitness;
+        //this.brain.score = this.fitness;
 
 
     }
@@ -90,14 +89,14 @@ class Snake{
             inputs[i] = 0;
 
         }
-        let results = [rayCast(this.getHead(), createVector(0, DIFF), this),//right
-            rayCast(this.getHead(), createVector(0, -DIFF), this),//left
-            rayCast(this.getHead(), createVector(-DIFF, 0), this),//up
-            rayCast(this.getHead(), createVector(DIFF, 0), this),//down
-            rayCast(this.getHead(), createVector(-DIFF, DIFF), this),//up right
+        let results = [rayCast(this.getHead(), createVector(0, DIFF), this),//down
+            rayCast(this.getHead(), createVector(0, -DIFF), this),//up
+            rayCast(this.getHead(), createVector(-DIFF, 0), this),//left
+            rayCast(this.getHead(), createVector(DIFF, 0), this),//right
+            rayCast(this.getHead(), createVector(-DIFF, DIFF), this),//down left
             rayCast(this.getHead(), createVector(-DIFF, -DIFF), this),// up left
             rayCast(this.getHead(), createVector(DIFF, DIFF), this),// down right
-            rayCast(this.getHead(), createVector(DIFF, -DIFF), this)// down left
+            rayCast(this.getHead(), createVector(DIFF, -DIFF), this)// up right
         ];
 
         for (let i = 0; i <= 7; i++) {
@@ -115,7 +114,7 @@ class Snake{
         }
 
 
-        let activated=this.brain.activate(inputs);
+       /* let activated=this.brain.activate(inputs);
 
         if (activated[0] > 0.5)
             this.direction=UP_ARROW;
@@ -124,8 +123,8 @@ class Snake{
         if (activated[2] > 0.5)
             this.direction=LEFT_ARROW;
         if (activated[3] > 0.5)
-            this.direction=RIGHT_ARROW;
-        return inputs;
+            this.direction=RIGHT_ARROW;*/
+        return results;
     }
 
     hitItself(){
@@ -182,11 +181,12 @@ function rayCast(pos, direction, snake) {
 
 
     }
-    let finalResult = {distFood: -1, distItself: -1, distWall: foundThings.get('wall')};
+    let finalResult = {distFood: -1, distItself: -1, distWall: foundThings.get('wall'), finalPos: pos};
     if (foundThings.has('food'))
         finalResult.distFood = foundThings.get('food');
     if (foundThings.has('itself'))
         finalResult.distItself = foundThings.get('itself');
+    finalResult.finalPos=currentPos;
     return finalResult;
 
 
@@ -194,4 +194,39 @@ function rayCast(pos, direction, snake) {
 
 
 }
+function keyPressed(){
+    if (keyCode === LEFT_ARROW&&snakes[0].direction!==RIGHT_ARROW) {
+        snakes[0].direction=LEFT_ARROW;
+
+    } else if (keyCode === RIGHT_ARROW&&snakes[0].direction!==LEFT_ARROW) {
+        snakes[0].direction=RIGHT_ARROW;
+    }
+    else if (keyCode === UP_ARROW&&snakes[0].direction!==DOWN_ARROW) {
+        snakes[0].direction=UP_ARROW;
+    }
+    else if (keyCode === DOWN_ARROW&&snakes[0].direction!==UP_ARROW) {
+        snakes[0].direction=DOWN_ARROW;
+    }
+
+
+
+}
+function touchMoved(){
+    if(mouseX>width/2){
+        if(mouseY<height/2&&snakes[0].direction!==DOWN_ARROW)
+            snakes[0].direction=UP_ARROW;
+        else if(snakes[0].direction!==LEFT_ARROW) snakes[0].direction=RIGHT_ARROW;
+    }
+    else{
+        if(mouseY<height/2&&snakes[0].direction!==RIGHT_ARROW)
+            snakes[0].direction=LEFT_ARROW;
+        else if(snakes[0].direction!==UP_ARROW) snakes[0].direction=DOWN_ARROW;
+    }
+
+}
+function touchStarted(){
+    touchMoved();
+}
+ 
+ 
 
