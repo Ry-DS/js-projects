@@ -9,7 +9,7 @@ class Snake{
         this.numSegments=4;//start off with 4 length
         this.score=0;
         this.fitness=0;
-        this.moves=500;
+        this.moves=400;
         this.food=newFood();
         this.color=[random(255),random(255),random(255)];
         frameRate(15);
@@ -116,16 +116,27 @@ class Snake{
 
 
         let activated=this.brain.activate(inputs);
+        let max = 0;
+        let maxIndex  =0;
+        for (let i = 0; i < activated.length; i++) {
+            if (max < activated[i]) {
+                max = activated[i];
+                maxIndex = i;
+            }
+        }
 
-        if (activated[0] > 0.5)
-            this.direction=UP_ARROW;
-        if (activated[1] > 0.5)
-            this.direction=DOWN_ARROW;
-        if (activated[2] > 0.5)
-            this.direction=LEFT_ARROW;
-        if (activated[3] > 0.5)
+
+        //set the velocity based on this decision
+        if (maxIndex === 0&&this.direction!==LEFT_ARROW) {
             this.direction=RIGHT_ARROW;
-        return inputs;
+        } else if (maxIndex === 1&&this.direction!==RIGHT_ARROW) {
+           this.direction=LEFT_ARROW;
+        } else if (maxIndex === 2&&this.direction!==DOWN_ARROW) {
+            this.direction=UP_ARROW;
+        } else if(this.direction!==UP_ARROW){
+            this.direction=DOWN_ARROW;
+        }
+        return results;
     }
 
     hitItself(){
@@ -155,7 +166,7 @@ class Snake{
 function rayCast(pos, direction, snake) {
     let currentPos = pos.copy();
     let findItem = (snake) => {
-        if (currentPos.x >= width - 10 || currentPos.y >= height - 10 || currentPos.x <= -10 || currentPos.y <= -10)
+        if (currentPos.x >= width - 10 || currentPos.y >= height - 10 || currentPos.x <= +10 || currentPos.y <= +10)
             return 'wall';
         if (currentPos.x === snake.food.x && currentPos.y === snake.food.y) {
             return 'food';

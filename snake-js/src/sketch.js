@@ -1,5 +1,5 @@
 let snakes=[];
-const SNAKE_COUNT = 50;
+const SNAKE_COUNT = 100;
 let neat;
 let slider;
 let speed=1;
@@ -30,7 +30,7 @@ function setup() {
             elitism: Math.round(0.1* SNAKE_COUNT),
             network: new neataptic.architect.Random(
                 24,
-                16,
+                18,
                 4
             )
         });
@@ -114,8 +114,7 @@ function update(){
         }
 
         let inputs = snake.think();
-        /* if(i===0)
-             console.log(inputs);*/
+
         snake.update();
         if (snake.score > highestScore)
             highestScore = snake.score;
@@ -137,6 +136,16 @@ function draw() {
         update();
     }
     snakes.forEach((snake)=>{
+       // strokeWeight(1);
+       /* let inputs = snake.think();
+        inputs.forEach(input=>{
+            if(input.distFood!==-1)
+                stroke(255,0,0);
+            else if(input.distItself!==-1)
+                stroke(0,0,255);
+            else stroke(0,255,0);
+           line(snake.getHead().x,snake.getHead().y,input.finalPos.x-10,input.finalPos.y-10);
+        });*///Drawing collision lines for debugging
         snake.render();
     });
 
