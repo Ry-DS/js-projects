@@ -6,17 +6,17 @@ class Snake{
     constructor(brain) {
         this.x=[];
         this.y=[];
-        this.numSegments=4;//start off with 4 length
+        this.numSegments = 5;//start off with 4 length
         this.score=0;
         this.fitness=0;
-        this.moves=400;
+        this.moves = 200;
         this.food=newFood();
         this.color=[random(255),random(255),random(255)];
         frameRate(15);
         this.direction=RIGHT_ARROW;
         for (let i = 0; i < this.numSegments; i++) {
             this.x.push(30 + (i * DIFF));//0 is where snake starts on x
-            this.y.push(250);//250 is where snake starts on y
+            this.y.push(height - 50);//250 is where snake starts on y
         }
 
         this.brain = brain;
@@ -56,9 +56,18 @@ class Snake{
             this.addLength();
             this.score++;
             this.food=newFood();
+            /*let isInTail=()=>{
+                for (let i=0;i<this.x.length-1;i++){
+                    if(this.x[i]===this.food.x&&this.y[i]===this.food.y)
+                        return false;
+                }
+                return true;
+            }
+            while(isInTail())
+            this.food=newFood();*/
             this.moves = 200;
         }
-        this.fitness += this.numSegments;
+        this.fitness += (this.numSegments - 4) * (this.numSegments - 4);
         this.brain.score = this.fitness;
 
 
@@ -71,7 +80,7 @@ class Snake{
         push();
         fill(255);
         stroke(this.color[0],this.color[1],this.color[2],100);
-        strokeWeight(10);
+        strokeWeight(DIFF);
         for (let i = 0; i < this.numSegments - 1; i++) {
             if(i===this.numSegments-2)//TODO remove
                 stroke(255,0,0);
@@ -166,7 +175,7 @@ class Snake{
 function rayCast(pos, direction, snake) {
     let currentPos = pos.copy();
     let findItem = (snake) => {
-        if (currentPos.x >= width - 10 || currentPos.y >= height - 10 || currentPos.x <= +10 || currentPos.y <= +10)
+        if (currentPos.x >= width - 10 || currentPos.y >= height - 10 || currentPos.x <= 20 || currentPos.y <= 20)
             return 'wall';
         if (currentPos.x === snake.food.x && currentPos.y === snake.food.y) {
             return 'food';

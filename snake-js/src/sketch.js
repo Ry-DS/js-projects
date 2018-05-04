@@ -16,7 +16,7 @@ let chartLabels=[];
 
 
 function setup() {
-    let canvas = createCanvas(300, 300);
+    let canvas = createCanvas(160, 160);
     canvas.style('display', 'block');
     canvas.parent('sketch-holder');
 
@@ -28,7 +28,7 @@ function setup() {
             popsize: SNAKE_COUNT,
             mutationRate: 0.3,
             elitism: Math.round(0.1* SNAKE_COUNT),
-            network: new neataptic.architect.Random(
+            network: new neataptic.architect.Perceptron(
                 24,
                 18,
                 4
@@ -162,8 +162,8 @@ function drawBox() {
     pop();
 }
 function newFood(){
-    let xFruit = floor(random(5, (width - 50) / 10)) * 10;
-    let yFruit = floor(random(5, (height - 50) / 10)) * 10;
+    let xFruit = floor(random(2, (width - 2 * DIFF) / DIFF)) * DIFF;
+    let yFruit = floor(random(2, (height - 2 * DIFF) / DIFF)) * DIFF;
     return new Food(xFruit,yFruit);
 }
 function Food(x,y){
@@ -175,7 +175,7 @@ function Food(x,y){
     this.render=(color)=>{
       fill(255,0,0);
       stroke(color[0],color[1],color[2]);
-      strokeWeight(10);
+        strokeWeight(DIFF);
       point(this.x,this.y);
 
     };
