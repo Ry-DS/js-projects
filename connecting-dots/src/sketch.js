@@ -33,21 +33,26 @@ function update() {
 function draw() {
     background(100);
     update();
-    let lineCount = 100;
+    let lineCount = 1000;
     particles.forEach(particle => {
         for (let otherParticle of particles) {
-            if (lineCount > 0 && dist(particle.pos.x, particle.pos.y, otherParticle.pos.x, otherParticle.pos.y) < 100) {
+            if (lineCount > 0 &&
+                particle.lineCount < 5 && otherParticle.lineCount < 5 &&
+                dist(particle.pos.x, particle.pos.y, otherParticle.pos.x, otherParticle.pos.y) < 100) {
                 push();
                 stroke(255);
                 line(otherParticle.pos.x, otherParticle.pos.y, particle.pos.x, particle.pos.y);
                 pop();
                 lineCount--;
+                otherParticle.lineCount++;
+                particle.lineCount++;
             }
         }
     });
     particles.forEach((particle) => {
 
         particle.render();
+        particle.lineCount = 0;
     });
 
 

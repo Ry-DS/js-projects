@@ -8,6 +8,7 @@ class Particle {
         this.r = 255;
         this.g = 255;
         this.b = 255;
+        this.lineCount = 0;
         this.randomColor = random(RANDOM_SETS);
 
         this.size = 15;
