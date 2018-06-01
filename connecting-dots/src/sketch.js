@@ -36,7 +36,7 @@ function draw() {
     let lineCount = 100;
     particles.forEach(particle => {
         for (let otherParticle of particles) {
-            if (dist(particle.pos.x, particle.pos.y, otherParticle.pos.x, otherParticle.pos.y) < 100 && lineCount > 0) {
+            if (lineCount > 0 && dist(particle.pos.x, particle.pos.y, otherParticle.pos.x, otherParticle.pos.y) < 100) {
                 push();
                 stroke(255);
                 line(otherParticle.pos.x, otherParticle.pos.y, particle.pos.x, particle.pos.y);
