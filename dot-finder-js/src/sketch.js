@@ -27,7 +27,7 @@ function setup() {
             mutationRate: 0.3,
             elitism: Math.round(0.1 * DOT_COUNT),
             network: new neataptic.architect.Perceptron(
-                4,
+                1,
                 4,
                 2
             )
@@ -148,9 +148,10 @@ function draw() {
     push();
     strokeWeight(7);
     stroke(255, 0, 0);
-    point(goal.x, goal.y);
+    point(goal.x, goal.y);//draw goal
+    line(width/2-100,height/2,width,height/2);
     pop();
-    drawBox();
+    //drawBox();
 
 }
 

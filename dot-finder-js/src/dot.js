@@ -19,17 +19,17 @@ class Dot {
     think() {
         this.brain.score = this.score;
         let inputs = [];
-        inputs[0] = goal.x / width;
-        inputs[1] = goal.y / height;
-        inputs[2] = this.pos.x / width;
-        inputs[3] = this.pos.y / height;
+        inputs[0]=this.score;
         let activated = this.brain.activate(inputs);
-        this.vel.x = activated[0] * 20 - 10;//number between -10 to 10
-        this.vel.y = activated[1] * 20 - 10;
+        this.vel.x = activated[0] * 40 - 20;//number between -10 to 10
+        this.vel.y = activated[1] * 40 - 20;
     }
 
     isDead() {
-        return this.pos.x > width || this.pos.x < 0 || this.pos.y < 0 || this.pos.y > height || this.score > 0.3 || this.moves > 400;
+        return this.pos.x > width || this.pos.x < 0 || this.pos.y < 0 || this.pos.y > height || this.score > 0.3 || this.moves > 5000||
+            //wall
+            this.pos.x>width/2-100&&(this.pos.y<height/2&&this.pos.y>height/2-30)
+            ;
 
     }
 
