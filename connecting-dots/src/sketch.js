@@ -1,7 +1,17 @@
 let particles = [];
 let slider;
+let fadingLines = [];
 
 function setup() {
+    Array.prototype.contains = function (obj) {
+        let i = this.length;
+        while (i--) {
+            if (this[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    };
     // put setup code here
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.style('display', 'block');
@@ -10,6 +20,15 @@ function setup() {
     //slider=createSlider(1,width);
     for (let i = 0; i < 60; i++) {
         drawParticles(random(width), random(height));
+    }
+
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 100; j++) {
+            let particle = random(particles);
+            particle.newLine();
+        }
+
+
     }
 
 
@@ -27,6 +46,11 @@ function update() {
         if (particle.size < 0)
             particles.splice(i, 1);
     }
+    for (let i = fadingLines.length - 1; i >= 0; i--) {
+        if (!fadingLines[i].dieing)
+            fadingLines.splice(i, 1);
+        else fadingLines[i].update();
+    }
 
 }
 
@@ -35,7 +59,7 @@ function draw() {
     update();
     let lineCount = 1000;
     particles.forEach(particle => {
-        for (let otherParticle of particles) {
+        /*for (let otherParticle of particles) {
             if (lineCount > 0 &&
                 particle.lineCount < 5 && otherParticle.lineCount < 5 &&
                 dist(particle.pos.x, particle.pos.y, otherParticle.pos.x, otherParticle.pos.y) < 100) {
@@ -47,8 +71,10 @@ function draw() {
                 otherParticle.lineCount++;
                 particle.lineCount++;
             }
-        }
+        }*/
+        particle.lines.forEach(line => line.render());
     });
+    fadingLines.forEach(line => line.render());
     particles.forEach((particle) => {
 
         particle.render();
