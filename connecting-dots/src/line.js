@@ -3,7 +3,7 @@ class Line {
     constructor(to, from) {
         this.to = to;
         this.from = from;
-        this.ticksLived = 0;
+        this.ticksLived = random(100, 300);
 
 
     }
@@ -20,7 +20,7 @@ class Line {
 
         }
 
-        this.ticksLived++;
+        this.ticksLived--;
 
 
     }
@@ -30,7 +30,7 @@ class Line {
             return;
 
         push();
-        stroke(255, 255, 255, this.alpha ? this.alpha : this.ticksLived * 2);
+        stroke(255, 255, 255, this.alpha ? this.alpha : (255) / this.ticksLived);
         line(this.to.pos.x, this.to.pos.y, this.from.pos.x, this.from.pos.y);
         pop();
 

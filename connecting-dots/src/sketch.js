@@ -18,15 +18,13 @@ function setup() {
     canvas.parent('sketch-holder');
     noStroke();
     //slider=createSlider(1,width);
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 20; i++) {
         drawParticles(random(width), random(height));
     }
 
-    for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 100; j++) {
+    for (let i = 0; i < 100; i++) {
             let particle = random(particles);
             particle.newLine();
-        }
 
 
     }

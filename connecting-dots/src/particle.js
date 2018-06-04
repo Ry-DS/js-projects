@@ -32,7 +32,7 @@ class Particle {
          }*/
         for (let i = this.lines.length - 1; i >= 0; i--) {
             let line = this.lines[i];
-            if (line.ticksLived > 100) {
+            if (line.ticksLived < 0) {
                 line.die(this, i);
                 this.newLine();
             }
