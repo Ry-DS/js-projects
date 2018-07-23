@@ -53,7 +53,7 @@ function update() {
 }
 
 function draw() {
-    background(100);
+    background(50);
     update();
     let lineCount = 1000;
     particles.forEach(particle => {
