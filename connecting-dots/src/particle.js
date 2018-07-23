@@ -72,5 +72,39 @@ class Particle {
 
 
     }
+	calculateRebound(ball){//https://stackoverflow.com/questions/345838/ball-to-ball-collision-detection-and-handling
+		let delta=this.pos.copy().sub(ball.pos);
+		let d=delta.mag();
+	
+
+		let mtd=delta.copy().mult(((this.radius()+ball.radius())-d)/d);
+		
+		let im1=random(2,3);//this ball mass is 3
+		let im2=random(2,3);//other ball mass is 3
+		this.pos.add(mtd.copy().mult(im1/(im1+im2)));
+		ball.pos.sub(mtd.copy().mult(im2/(im1+im2)));
+		let v=this.vel.copy().sub(ball.vel);
+		let vn=v.copy().dot(mtd.copy().normalize());
+		if(vn>0)
+			return;
+		let i=(-(1 + 0.5) * vn) / (im1 + im2);//0.5 is restitution
+		let impulse=mtd.copy().mult(i);
+		this.vel.add(impulse.copy().mult(im1));
+		ball.vel.sub(impulse.copy().mult(im2));
+		
+		
+		
+	}
+	collides(ball){
+		let xd=this.pos.x-ball.pos.x;
+		let yd=this.pos.y-ball.pos.y;
+		let sumRadius=this.radius()+ball.radius();
+		let sqrRadius=sumRadius*sumRadius;
+		let distSqr=(xd*xd)+(yd*yd);
+		return distSqr<=sqrRadius;
+	}
+	radius(){
+		return this.size/2;
+	}
 
 }

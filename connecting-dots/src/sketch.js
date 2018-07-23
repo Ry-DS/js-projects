@@ -41,6 +41,10 @@ function update() {
     for (let i = particles.length - 1; i >= 0; i--) {
         let particle = particles[i];
         particle.update();
+		for(let j=particles.length-1;j>=0;j--){
+			if(i!==j&&particle.collides(particles[j]))
+				particle.calculateRebound(particles[j]);
+		}
         if (particle.size < 0)
             particles.splice(i, 1);
     }
