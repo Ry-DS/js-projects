@@ -30,7 +30,7 @@ class Line {
             return;
 
         push();
-        stroke(255, 255, 255, this.alpha ? this.alpha : (255) / this.ticksLived);
+        stroke(255, 255, 255, this.alpha ? this.alpha : (255) / (this.ticksLived+1));
         line(this.to.pos.x, this.to.pos.y, this.from.pos.x, this.from.pos.y);
         pop();
 
